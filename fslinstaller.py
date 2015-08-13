@@ -1652,13 +1652,7 @@ def installer(options, args):
         MsgUser.debug(str(e))
         raise InstallFailed(str(e))
 
-    inst_qus = InstallQuestions()
-    inst_qus.add_question('location', "Where would you like to install FSL", '/usr/local', 'path', check_install_location)
-    inst_qus.add_question('del_old', "FSL exists in the current location, would you like to keep the old version", 'No', 'bool', yes_no)
-    inst_qus.add_question('create', "Install location doesn't exist, should I create it", 'yes', 'bool', yes_no)
-    inst_qus.add_question('inst_loc', "Which folder is FSL installed in (without 'fsl')", '/usr/local', 'path', check_fsl_install)
-    inst_qus.add_question('skipmd5', 'I was unable to download the checksum of the install file so cannot confirm it is correct. Would you like to install anyway', 'no', 'bool', yes_no)
-    inst_qus.add_question('overwrite', "There is already a local copy of the file, would you like to overwrite it", "Yes", 'bool', yes_no)
+
     my_uid = getuid()
     lv_string = 'latest-version.txt'
     if options.test_installer: lv_string += '-testing'
@@ -1689,7 +1683,7 @@ def installer(options, args):
         local_file = this_install.url.split('/')[-1]
         if path.exists(local_file):
             if path.isfile(local_file):
-                overwrite = inst_qus.ask_question('overwrite')
+                overwrite = True
                 if overwrite:
                     MsgUser.warning("Erasing existing file %s" % local_file)
                     try:
@@ -1722,7 +1716,7 @@ def installer(options, args):
             else:
                 # We can't find an installed version of FSL!
                 if not MsgUser.isquiet():
-                    fsldir = inst_qus.ask_question('inst_loc') + "/fsl"
+                    fsldir = "/usr/local/fsl"
                 else:
                     raise InstallFailed("I can't locate FSL, try again using '-d <FSLDIR>' to specify where to find the FSL install")
 
@@ -1849,18 +1843,18 @@ def installer(options, args):
         keep=False    
         if not upgrade:
             if not options.d_dir:
-                instdir = inst_qus.ask_question('location')
+                instdir = "/usr/local/"
             else:
                 instdir = options.d_dir
                 MsgUser.message("Attempting to install to %s" % (instdir))
             fsldir = '/'.join( (instdir.rstrip('/'), "fsl") )
             MsgUser.debug("Install folder %s, FSLDIR is %s" % (instdir, fsldir))
             if path.isdir(fsldir) and not options.quiet:
-                keep = inst_qus.ask_question('del_old')
+                keep = False
             else:
                 keep = False
                 if not path.isdir(instdir):
-                    if inst_qus.ask_question('create'):
+                    if True:
                         # Make the install directory after checking if we can write here
                         try:
                             MsgUser.debug('Creating folder %s' % (instdir))
@@ -1903,7 +1897,7 @@ def installer(options, args):
                 MsgUser.ok("Download is good.")
             elif m_result.status == FslIResult.WARN:
                 if not MsgUser.isquiet():
-                    cont = inst_qus.ask_question('skipmd5')
+                    cont = False
                     if not cont:
                         safe_delete(local_fname)
                         return FslIResult(False, FslIResult.ERROR, '')
