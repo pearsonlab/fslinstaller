@@ -653,15 +653,9 @@ class Os(object):
                 (self.vendor, version, _) = platform.linux_distribution(full_distribution_name=0)
             else:
                 (self.vendor, version, _) = platform.dist()
-            if version == '':
-                version = platform.release().split('.')[:4]
-                for i in range(len(version)):
-                    if not version[i].isdigit():
-                        for j in range(len(version[i])):
-                            if not version[i][j].isdigit():
-                                version[i] = version[i][:j]
-                                break
-                version = '.'.join(version)
+            if version == '': # Amazon AMI which is unrecognized by Python calls. Based on RHEL 5.x
+                version = '5.0'
+                self.vendor = 'CentOs'
             self.vendor = self.vendor.lower()
             self.version = Version(version)
             self.glibc = platform.libc_ver()
