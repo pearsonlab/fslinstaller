@@ -8,6 +8,7 @@
 
 ## If we need to expand the disk
 *Do this all before everything above*
+
 1. Detach root volume
 2. Take snapshot of volume
 3. Build new larger volume with snapshot
